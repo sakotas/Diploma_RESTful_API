@@ -1,61 +1,60 @@
+from flask_restx import Resource, fields, Namespace
 from online_store.models.models import db, Product
-from flask import Blueprint, request, current_app, jsonify
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
+api = Namespace('products', description='Product operations')
 
-api_blueprint = Blueprint('api', __name__)
+product_model = api.model('Product', {
+    'id': fields.Integer(readOnly=True, description='The product unique identifier'),
+    'name': fields.String(required=True, description='The product name'),
+    'description': fields.String(required=True, description='The product description'),
+    'price': fields.Float(required=True, description='The product price'),
+    'quantity': fields.Integer(required=True, description='The product quantity')
+})
 
-@api_blueprint.before_request
-def log_request_info():
-    current_app.logger.debug('Headers: %s', request.headers)
-    current_app.logger.debug('Body: %s', request.get_data(as_text=True))
-@api_blueprint.route('/')
-def index():
-    return jsonify({"message": "Добро пожаловать в API интернет-магазина"})
+@api.route('/')
+class ProductList(Resource):
+    @api.marshal_list_with(product_model)
+    def get(self):
+        """List all products"""
+        products = Product.query.all()
+        return products
 
-@api_blueprint.route('/products', methods=['POST'])
-def add_product():
-    try:
-        data = request.get_json()
-        new_product = Product(
-            name=data['name'],
-            description=data['description'],
-            price=data['price'],
-            quantity=data['quantity']
-        )
-        db.session.add(new_product)
+    @api.expect(product_model)
+    @api.marshal_with(product_model, code=201)
+    def post(self):
+        """Create a new product"""
+        data = api.payload
+        product = Product(name=data['name'], description=data['description'], price=data['price'], quantity=data['quantity'])
+        db.session.add(product)
         db.session.commit()
-        return jsonify(new_product.to_dict()), 201
-    except Exception as e:
-        current_app.logger.error(f'Error adding product: {e}')
-        db.session.rollback()
-        return jsonify({'error': 'Error adding product'}), 500
+        return product, 201
 
-@api_blueprint.route('/products', methods=['GET'])
-def get_products():
-    products = Product.query.all()
-    return jsonify([product.to_dict() for product in products]), 200
+@api.route('/<int:id>')
+@api.param('id', 'The product identifier')
+@api.response(404, 'Product not found')
+class ProductItem(Resource):
+    @api.marshal_with(product_model)
+    def get(self, id):
+        """Fetch a single product"""
+        product = Product.query.get_or_404(id)
+        return product
 
-@api_blueprint.route('/products/<int:id>', methods=['GET'])
-def get_product(id):
-    product = Product.query.get_or_404(id)
-    return jsonify(product.to_dict()), 200
+    @api.expect(product_model)
+    @api.marshal_with(product_model)
+    def put(self, id):
+        """Update a product"""
+        product = Product.query.get_or_404(id)
+        data = api.payload
+        product.name = data.get('name', product.name)
+        product.description = data.get('description', product.description)
+        product.price = data.get('price', product.price)
+        product.quantity = data.get('quantity', product.quantity)
+        db.session.commit()
+        return product
 
-@api_blueprint.route('/products/<int:id>', methods=['PUT'])
-def update_product(id):
-    product = Product.query.get_or_404(id)
-    data = request.get_json()
-    product.name = data.get('name', product.name)
-    product.description = data.get('description', product.description)
-    product.price = data.get('price', product.price)
-    product.quantity = data.get('quantity', product.quantity)
-    db.session.commit()
-    return jsonify(product.to_dict()), 200
-
-@api_blueprint.route('/products/<int:id>', methods=['DELETE'])
-def delete_product(id):
-    product = Product.query.get_or_404(id)
-    db.session.delete(product)
-    db.session.commit()
-    return jsonify({'message': 'Product deleted'}), 200
+    def delete(self, id):
+        """Delete a product"""
+        product = Product.query.get_or_404(id)
+        db.session.delete(product)
+        db.session.commit()
+        return {'message': 'Product deleted'}, 200
