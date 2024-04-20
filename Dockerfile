@@ -12,6 +12,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Скопируйте содержимое локальной директории src в рабочую директорию контейнера
+COPY src/ ./
 
 # Сделайте порт доступным для мира вне контейнера
 EXPOSE 5000
@@ -20,4 +21,4 @@ EXPOSE 5000
 ENV NAME World
 
 # Запустите приложение при запуске контейнера
-CMD ["python", "src/app.py"]
+CMD ["python", "app.py"]
