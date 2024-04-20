@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restx import Api
-from online_store.api.routes import api as product_api
-from online_store.models.models import db
+from api.routes import api as product_api
+from models.models import db
 from flask_migrate import Migrate
 from flask_cors import CORS
 

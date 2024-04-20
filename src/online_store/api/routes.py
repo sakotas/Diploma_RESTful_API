@@ -1,5 +1,5 @@
 from flask_restx import Resource, fields, Namespace
-from online_store.models.models import db, Product
+from ..models.models import db, Product
 
 api = Namespace("products", description="Product operations")
 
