@@ -17,6 +17,9 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Добавьте /app/src в PYTHONPATH
+ENV PYTHONPATH=/app/src
+
 # Сделайте порт доступным для мира вне контейнера
 EXPOSE 5000
 
