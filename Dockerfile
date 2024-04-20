@@ -4,6 +4,9 @@ FROM python:3.10-slim
 # Установка distutils
 RUN apt-get update && apt-get install -y python3-distutils
 
+# Создайте рабочую директорию в контейнере
+WORKDIR /app
+
 # Скопируйте файл requirements.txt в контейнер
 COPY requirements.txt ./
 
@@ -12,7 +15,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Скопируйте содержимое локальной директории src в рабочую директорию контейнера
-COPY src/ ./
+COPY online_store/ ./
 
 # Сделайте порт доступным для мира вне контейнера
 EXPOSE 5000
