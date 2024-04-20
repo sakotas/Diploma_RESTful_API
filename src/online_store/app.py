@@ -17,4 +17,5 @@ migrate = Migrate(app, db)
 
 if __name__ == "__main__":
     app.logger.setLevel(logging.DEBUG)
+    db.init_app(app)
     app.run(debug=True, port=5001)
