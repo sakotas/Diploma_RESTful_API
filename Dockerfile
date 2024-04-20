@@ -24,4 +24,4 @@ EXPOSE 5000
 ENV NAME World
 
 # Запустите приложение при запуске контейнера
-CMD ["python", "app.py"]
+CMD ["python", "src/app.py"]
