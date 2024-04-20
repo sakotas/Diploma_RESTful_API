@@ -4,9 +4,6 @@ FROM python:3.10-slim
 # Установка distutils
 RUN apt-get update && apt-get install -y python3-distutils
 
-# Установите рабочую директорию в контейнере
-WORKDIR /app
-
 # Скопируйте файл requirements.txt в контейнер
 COPY requirements.txt ./
 
@@ -24,4 +21,4 @@ EXPOSE 5000
 ENV NAME World
 
 # Запустите приложение при запуске контейнера
-CMD ["python", "app.py"]
+CMD ["python", "src/app.py"]
