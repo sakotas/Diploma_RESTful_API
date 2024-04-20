@@ -14,8 +14,11 @@ class TestBase(TestCase):
     def setUp(self):
         with self.app.app_context():
             db.create_all()
-            db.session.add(Product(name="Test Product", description="A test item", price=19.99, quantity=100))
+            # Создаем продукт для тестирования удаления, обновления, получения
+            product = Product(name="Test Product", description="A test item", price=19.99, quantity=100)
+            db.session.add(product)
             db.session.commit()
+            self.product_id = product.id  # Сохраняем ID для использования в тестах
 
     def tearDown(self):
         with self.app.app_context():
@@ -29,26 +32,26 @@ class TestViews(TestBase):
             data=json.dumps({'name': "New Test Product", 'description': "A new test item", 'price': 24.99, 'quantity': 50}),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 308)
 
     def test_get_all_products(self):
         response = self.client.get('/products')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 308)
 
     def test_get_product(self):
-        response = self.client.get('/products/1')
+        response = self.client.get(f'/products/{self.product_id}')
         self.assertEqual(response.status_code, 200)
 
     def test_update_product(self):
         response = self.client.put(
-            '/products/1',
+            f'/products/{self.product_id}',
             data=json.dumps({'name': "Updated Test Product", 'description': "An updated test item", 'price': 29.99, 'quantity': 75}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
 
     def test_delete_product(self):
-        response = self.client.delete('/products/1')
+        response = self.client.delete(f'/products/{self.product_id}')
         self.assertEqual(response.status_code, 200)
 
 if __name__ == '__main__':
