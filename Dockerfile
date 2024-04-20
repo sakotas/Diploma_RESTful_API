@@ -17,6 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Скопируйте содержимое директории online_store в рабочую директорию контейнера
 COPY src/online_store/ ./
 
+# Добавьте /app в PYTHONPATH
+ENV PYTHONPATH=/app
+
 # Сделайте порт доступным для мира вне контейнера
 EXPOSE 5000
 
