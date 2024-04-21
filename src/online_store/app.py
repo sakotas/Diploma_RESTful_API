@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 app = Flask(__name__)
-api = Api(app, title="Product API", version="1.0", description="A simple product API")
+api = Api(app, title="Diplom_GB_RESTful_API", version="1.0", description="A simple product API")
 
 api.add_namespace(product_api)
 
